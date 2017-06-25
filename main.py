@@ -19,6 +19,7 @@ import logging
 import urllib
 import sendgrid
 import requests
+from sparkpost import SparkPost
 from sendgrid.helpers.mail import *
 import jinja2
 import re
@@ -60,6 +61,16 @@ def valid_phone(phone):
         return False
 
 
+def send_email(subject, body, email):
+    sparky = SparkPost('72b1de4ab3f929ae94b331d3e85d5922679e5cc3')
+    response = sparky.transmissions.send(
+    use_sandbox=True,
+    recipients=['%s'%(email)],
+    html=body,
+    from_email='testing@sparkpostbox.com',
+    subject=subject)
+
+
 def send_simple_message(subject, body, email):
     print subject
     print body
@@ -80,17 +91,11 @@ def send_simple_message(subject, body, email):
 
 
 def send_simple_email(subject, body, email):
-    subject = str(subject)
-    body = str(body)
-    email = str(email)
-    print subject
-    print body
-    print email
     return requests.post(
-        "https://api.mailgun.net/v3/sandbox3044e679dd1947139228f23db8e8d379.mailgun.org",
+        "https://api.mailgun.net/v3/sandbox3044e679dd1947139228f23db8e8d379.mailgun.org/messages",
         auth=("api", "key-5492d5bbddfd085f28cc93268edb72d4"),
-        data={"from": "Management <gautam.jain9@yahoo.com>",
-              "to": ["%s"%(email)],
+        data={"from": "Management <postmaster@sandbox3044e679dd1947139228f23db8e8d379.mailgun.org>",
+              "to": "<%s>"%(email),
               "subject": subject,
               "text": body})
 
@@ -172,8 +177,8 @@ class CheckInHandler(Handler):
                                 )
             checkin.put()
             body_mssg = ("Name: %s\n\nEmail: %s\n\nPhone: %s\n\n" % (name, email, phone))
-            x = send_simple_message("New Incoming Visitor", body_mssg, host_email)
-            self.render("error.html", mssg="Checked In Successfully !" + "(Notify through message or Email)")
+            send_simple_email("New Incoming Visitor", body_mssg, host_email)
+            self.render("error.html", mssg="Checked In Successfully !")
         else:
             self.render("error.html", mssg="Error Checking In !!")
 
@@ -199,11 +204,11 @@ class CheckOutHandler(Handler):
                     if j.name == host_name:
                     	host_mail = j.email
                     	break
-                x = send_simple_message("Visitor Checked Out !!", "Name:%s\n\nEmail: %s\n\n" % (name, email), host_mail)
+                send_simple_email("Visitor Checked Out !!", "Name:%s\n\nEmail: %s\n\n" % (name, email), host_mail)
                 i.delete()
                 break
         if found:
-            self.render("error.html", mssg="Checked Out Successfully !!" + "(Notify through message or Email)")
+            self.render("error.html", mssg="Checked Out Successfully !!")
         if not found:
             self.render("error.html", mssg="no such person checked in !!")
 
