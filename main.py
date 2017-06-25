@@ -18,20 +18,20 @@ import json
 import logging
 import urllib
 import sendgrid
+import requests
 from sendgrid.helpers.mail import *
 import jinja2
 import re
 import webapp2
 import os
-from google.appengine.api import mail
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
 import webapp2
+import requests_toolbelt.adapters.appengine
 
-
+requests_toolbelt.adapters.appengine.monkeypatch()
 jinja_env = jinja2.Environment(autoescape=True,
                                loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
-
 
 USER_RE = re.compile(r"^[a-zA-Z]{3,20}\s?([a-zA-Z]{3,20})?$")
 
@@ -61,7 +61,10 @@ def valid_phone(phone):
 
 
 def send_simple_message(subject, body, email):
-    SENDGRID_API_KEY = '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'
+    print subject
+    print body
+    print email
+    SENDGRID_API_KEY = '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'
     SENDGRID_SENDER = 'gautam.jain9@yahoo.com'
     sg = sendgrid.SendGridAPIClient(apikey=SENDGRID_API_KEY)
     from_email = Email(SENDGRID_SENDER)
@@ -76,6 +79,22 @@ def send_simple_message(subject, body, email):
     return response.body
 
 
+def send_simple_email(subject, body, email):
+    subject = str(subject)
+    body = str(body)
+    email = str(email)
+    print subject
+    print body
+    print email
+    return requests.post(
+        "https://api.mailgun.net/v3/sandbox3044e679dd1947139228f23db8e8d379.mailgun.org",
+        auth=("api", "key-5492d5bbddfd085f28cc93268edb72d4"),
+        data={"from": "Management <gautam.jain9@yahoo.com>",
+              "to": ["%s"%(email)],
+              "subject": subject,
+              "text": body})
+
+
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -87,6 +106,7 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+
 class Hosts(db.Model):
     name = db.StringProperty(required=True)
     email = db.StringProperty(required=True)
@@ -95,32 +115,40 @@ class Hosts(db.Model):
 
 
 class CheckedIn(db.Model):
-	visitor_name = db.StringProperty(required=True)
-	visitor_email = db.StringProperty(required=True)
-	visitor_phone = db.StringProperty(required=True)
-	host_name = db.StringProperty(required=True)
-	date = db.DateTimeProperty(auto_now_add=True)
+    visitor_name = db.StringProperty(required=True)
+    visitor_email = db.StringProperty(required=True)
+    visitor_phone = db.StringProperty(required=True)
+    host_name = db.StringProperty(required=True)
+    date = db.DateTimeProperty(auto_now_add=True)
 
 
 class MainHandler(Handler):
     def get(self):
-        self.response.write('Hello world!')
+        self.render('welcome.html')
 
 
 class AddHostHandler(Handler):
+    def get(self):
+	self.render("registerhost.html")
+		
     def post(self):
         name = self.request.get("name")
         email = self.request.get("email")
         phone = self.request.get("phone")
         host = Hosts(name=str(name),
                      email=str(email),
-                     phone=str(phone)        
-                    )
+                     phone=str(phone)
+                     )
         host.put()
         self.redirect('/')
 
 
 class CheckInHandler(Handler):
+    def get(self):
+    	all_hosts = db.GqlQuery("select * from Hosts")
+    	self.render('checkin.html', hosts=all_hosts)
+
+
     def post(self):
         name = self.request.get("name")
         email = self.request.get("email")
@@ -131,45 +159,53 @@ class CheckInHandler(Handler):
         host_email = ""
         all_hosts = db.GqlQuery("select * from Hosts")
         for i in all_hosts:
-        	if i.name == host:
-        		found = True
-        		host_email = i.email
-        		break
+            if i.name == host:
+                found = True
+                host_email = i.email
+                break
 
         if found:
-	        checkin = CheckedIn(visitor_name=str(name),
-	                     visitor_email=str(email),
-	                     visitor_phone=str(phone),
-	                     host_name = str(host)        
-	                    )
-	        checkin.put()
-	        body_mssg = ("Name: %s\n\nEmail: %s\n\nPhone: %s\n\n"%(name, email, phone))
-	        send_simple_message("New Incoming Visitor", body_mssg, host_email)
-	        self.render("error.html", mssg="Checked In Successfully !")
-	    else:
-	    	self.render("error.html", mssg="Error Checking In !!")
+            checkin = CheckedIn(visitor_name=str(name),
+                                visitor_email=str(email),
+                                visitor_phone=str(phone),
+                                host_name=str(host)
+                                )
+            checkin.put()
+            body_mssg = ("Name: %s\n\nEmail: %s\n\nPhone: %s\n\n" % (name, email, phone))
+            x = send_simple_message("New Incoming Visitor", body_mssg, host_email)
+            self.render("error.html", mssg="Checked In Successfully !" + "(Notify through message or Email)")
+        else:
+            self.render("error.html", mssg="Error Checking In !!")
 
 
 class CheckOutHandler(Handler):
-	def get(self):
-		all_checked_in = db.GqlQuery("select * from CheckedIn")
-		self.render("checkedin.html", all_checked_in=all_checked_in)
+    def get(self):
+        all_checked_in = db.GqlQuery("select * from CheckedIn")
+        self.render("checkout.html", all_checked_in=all_checked_in)
 
-	def post(self):
-		name = self.request.get("name")
-		email = self.request.get("email")
-		all_checked_in = db.GqlQuery("select * from CheckedIn")
-		
-		found = False
-		for i in all_checked_in:
-			if i.visitor_name == name and i.visitor_email == email:
-				found = True
-				i.delete()
-				break
-		if found:
-			self render("error.html", mssg="Checked Out Successfully !!")
-		if not found:
-			self.render("error.html", mssg="no such person checked in !!")
+    def post(self):
+        name = self.request.get("visitor_name")
+        email = self.request.get("email")
+        all_checked_in = db.GqlQuery("select * from CheckedIn")
+        found = False
+        x = ""
+        for i in all_checked_in:
+            if i.visitor_name == name and i.visitor_email == email:
+                found = True
+                host_name = i.host_name
+                all_hosts = db.GqlQuery("select * from Hosts")
+                host_mail = ""
+                for j in all_hosts:
+                    if j.name == host_name:
+                    	host_mail = j.email
+                    	break
+                x = send_simple_message("Visitor Checked Out !!", "Name:%s\n\nEmail: %s\n\n" % (name, email), host_mail)
+                i.delete()
+                break
+        if found:
+            self.render("error.html", mssg="Checked Out Successfully !!" + "(Notify through message or Email)")
+        if not found:
+            self.render("error.html", mssg="no such person checked in !!")
 
 
 app = webapp2.WSGIApplication([
