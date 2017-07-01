@@ -134,12 +134,21 @@ class MainHandler(Handler):
 
 class AddHostHandler(Handler):
     def get(self):
-	self.render("registerhost.html")
+	self.render("registerhost.html", mssg="")
 		
     def post(self):
         name = self.request.get("name")
+	if not valid_name(name):
+	    self.render("registerhost.html", mssg="Invalid Name !!")
+	    return
         email = self.request.get("email")
+	if not valid_email(email):
+	    self.render("registerhost.html", mssg="Invalid Email !!")
+	    return
         phone = self.request.get("phone")
+	if not valid_phone(phone):
+	    self.render("registerhost.html", mssg="Invalid Phone Number !!")
+	    return
         host = Hosts(name=str(name),
                      email=str(email),
                      phone=str(phone)
@@ -151,13 +160,23 @@ class AddHostHandler(Handler):
 class CheckInHandler(Handler):
     def get(self):
     	all_hosts = db.GqlQuery("select * from Hosts")
-    	self.render('checkin.html', hosts=all_hosts)
+    	self.render('checkin.html', hosts=all_hosts, mssg="")
 
 
     def post(self):
+	all_hosts = db.GqlQuery("select * from Hosts")
         name = self.request.get("name")
+	if not valid_name(name):
+	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Name !!")
+	    return
         email = self.request.get("email")
+	if not valid_email(email):
+	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Email !!")
+	    return
         phone = self.request.get("phone")
+	if not valid_phone(phone):
+	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Phone Number !!")
+	    return
         host = self.request.get("host")
 
         found = False

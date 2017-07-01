@@ -44,15 +44,16 @@
     </div>
   </nav>
 
-<div id="showf" class="row">
+{%if mssg != ""%}
+<div class="row">
       <div class=" m5">
         <div class="card-panel teal z-depth-3">
-          <span class="white-text">Verification link Send to your email address verify your email to get started
+          <span class="white-text">{{mssg}}
           </span>
         </div>
       </div>
     </div>
-
+{%endif%}
 
   <main>
     <center>
