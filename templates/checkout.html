@@ -44,6 +44,8 @@
     </div>
   </nav>
 
+
+<!--
 <div id="showf" class="row">
       <div class=" m5">
         <div class="card-panel teal z-depth-3">
@@ -52,7 +54,7 @@
         </div>
       </div>
     </div>
-
+-->
 
   <main>
     <center>
@@ -64,6 +66,8 @@
 
     <!--*********************-->
      
+<!--
+
 
       <div id="hidef" class="container">
       {%for i in all_checked_in%}
@@ -115,6 +119,54 @@
       {%endfor%}
       </div>
       
+
+      -->
+      <div id="demo">
+  
+  <!-- Responsive table starts here -->
+  <!-- For correct display on small screens you must add 'data-title' to each 'td' in your table -->
+  <div class="table-responsive-vertical shadow-z-1">
+  <!-- Table starts here -->
+  <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Visitor's Photo</th>
+          <th>Visitor's Name</th>
+          <th>Visitor's Email</th>
+          <th>Visitor's Phone</th>
+          <th>Host Name</th>
+          <th>Time</th>
+          <th>Checkout</th>
+        </tr>
+      </thead>
+      <tbody>
+      {%set j = 1%}
+      {%for i in all_checked_in%}
+        <tr>
+          <td data-title="ID">{{j}}</td>
+          <td><img src="/image?id={{ids[j-1]}}"></td>
+          <td data-title="Name">{{i.visitor_name}}</td>
+          <td data-title="Link">{{i.visitor_email}}</td>
+          <td data-title="Status">{{i.visitor_phone}}</td>
+          <td data-title="Status">{{i.host_name}}</td>
+          <td data-title="Status">{{i.date}}</td>
+          <td>
+          	<a href="/checkedout?email={{i.visitor_email}}">
+          	<input type="submit" class="btn col s12 btn-large waves-effect green" value="CHECK-OUT" />
+          	</a>
+          </td>
+        </tr>
+        {%set j = j + 1%}
+        {%endfor%}
+      </tbody>
+    </table>
+  </div>
+  
+  
+ 
+</div>
+
   </center>
   </main>
 

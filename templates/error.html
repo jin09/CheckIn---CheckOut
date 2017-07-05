@@ -28,26 +28,30 @@
 
       <!--Let browser know website is optimized for mobile-->
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-
-
-
-
     </head>
-
     <body>
    
 <nav>
     <div class="nav-wrapper  blue lighten-1">
       <a href="#" class="brand-logo center">{{mssg}}</a>
-      
     </div>
   </nav>
 
-
+<main>
+  <center>
+    <div class="section">
+    
+    <div id="hidef" class="container" style="margin-top: 20%;">
+      {%if link != ""%}
+      <a id="one" target="_blank" class="btn col s1 btn-large waves-effect green" href="/permalink?id={{link}}">PERMALINK</a>
+      {%endif%}
+      <a id="one" class="btn col s1 btn-large waves-effect green" href="/">HOME</a>
+    </div>
+    
+  </center>
+</main>
 
 <!--
-
  <footer class="page-footer footer blue-grey darken-3">
          
           <div class="footer-copyright footer ">
@@ -58,6 +62,7 @@
           </div>
         </footer>
 -->
+
 <footer class="page-footer footer blue-grey darken-3">
  <div class="footer-copyright">
             <div class="container">

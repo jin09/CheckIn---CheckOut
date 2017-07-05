@@ -1,7 +1,7 @@
  <!DOCTYPE html>
   <html>
     <head>
-<title>CHECK-IN</title>
+<title>PERMALINK</title>
     <style>
   body {
     display: flex;
@@ -12,7 +12,7 @@
   main {
     flex: 1 0 auto;
   }
-      
+
     </style>
     <!-- getmdl -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -30,26 +30,31 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 
+
+
+
     </head>
 
     <body>
    
 <nav>
     <div class="nav-wrapper  blue lighten-1">
-      <a href="#" class="brand-logo center">CHECK IN</a>
+      <a href="#" class="brand-logo center">PERMALINK</a>
       
     </div>
   </nav>
 
-{% if mssg != ""%}
-<div class="row">
+
+<!--
+<div id="showf" class="row">
       <div class=" m5">
         <div class="card-panel teal z-depth-3">
-          <span class="white-text">{{mssg}}</span>
+          <span class="white-text">Verification link Send to your email address verify your email to get started
+          </span>
         </div>
       </div>
     </div>
-{%endif%}
+-->
 
   <main>
     <center>
@@ -62,89 +67,69 @@
     <!--*********************-->
      
 
+
+
       <div id="hidef" class="container">
-        <div class="z-depth-3 grey lighten-4 row" style="display: inline-block; padding: 10px 10px 0px 10px; border: 0.5px solid #EEE;">
+        <div class="z-depth-3 grey lighten-4 row" style="display: inline-block; padding: 10px 10px 0px 10px; border: 0.5px solid #EEE; margin-left: 50px;">
 
-          <form class="col s12" style="width: 320px;" method="post" action="/checkin" enctype="multipart/form-data">
+          <form class="col s12" style="width: 320px;">
             
-
             <div class='row'>
               <div class='input-field col s12'>
-              <div align="left">Enter your Email</div>
-                <input type="text" id='email' name="email" />
+              <div align="left">Visitor's Name</div>
+                <input type="text" id='email' value="{{i.visitor_name}}" readonly name="visitor_name" style="font-size: 20px; font-weight: bold;"/>
                 
               </div>
             </div>
 
             <div class='row'>
               <div class='input-field col s12'>
-              <div align="left">Enter your Name</div>
-                <input type="text" id='uname' name="name" />
+              <div align="left">Visitor's Email</div>
+                <input type="text" id='uname' value="{{i.visitor_email}}" readonly name="email" style="font-size: 20px; font-weight: bold;" />
                 
               </div>
             </div>
-
-	    
-	   <div class='row'>
-              <div class='input-field col s12'>
-              <div align="left">Select Image to Upload</div>
-                
-              </div>
-            </div>
-	    
-
-
-	   <div class="file_input_div">
-    <div class="file_input">
-      <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
-        <i class="material-icons">file_upload</i>
-        <input id="file_input_file" class="none" type="file" name="pic" accept="image/*"/>
-      </label>
-    </div>
-    <div id="file_input_text_div" class="mdl-textfield mdl-js-textfield textfield-demo">
-      <input class="file_input_text mdl-textfield__input" type="text" disabled readonly id="file_input_text" />
-      <label class="mdl-textfield__label" for="file_input_text"></label>
-    </div>
-  </div>
-
-<br>
-          <div class="mdl-select mdl-js-select mdl-select--floating-label row">
-        <select class="mdl-select__input" id="host" name="host">
-          <option value=""></option>
-          {%for i in hosts%}
-              <option value="{{i.name}}">{{i.name}}: {{i.email}}</option>
-          {%endfor%}
-          
-        </select>
-        <label class="mdl-select__label" for="host">Select the Host</label>
-      </div>
 
             <div class='row'>
               <div class='input-field col s12'>
-              <div align="left">Enter your Phone Number</div>
-                <input type="text" id='phone' name="phone" />
-
-              
+              <div align="left">Visitor's Phone Number</div>
+                <input type="text" id='uname' value="{{i.visitor_phone}}" readonly name="phone" style="font-size: 20px; font-weight: bold;"/>
+                
+              </div>
             </div>
+
+            <div class='row'>
+              <div class='input-field col s12'>
+              <div align="left">Host Name</div>
+                <input type="text" id='uname' value="{{i.host_name}}" readonly name="host_name" style="font-size: 20px; font-weight: bold;"/>
+                
+              </div>
+            </div>
+
+            <div class='row'>
+              <div class='input-field col s12'>
+              <div align="left">Time Stamp</div>
+                <input type="text" id='uname' value="{{i.date}}" readonly name="host_name" style="font-size: 20px; font-weight: bold;"/>
+                
+              </div>
             </div>
 
             <br />
             <center>
-          
+              <img src="/image?id={{id}}"><br><br>
+              <button onclick="myFunction()" id="one" class="btn col s12 btn-large waves-effect blue" style="margin-bottom: 10px;">PRINT</button>
 
-              <div class='row'>
-                <input type="submit" id="one" class="btn col s12 btn-large waves-effect green" value="CHECK IN" />
-              </div>
-              
             </center>
           </form>
         </div>
-      </div>
       
+      </div>
+
   </center>
   </main>
 
 <!--
+
  <footer class="page-footer footer blue-grey darken-3">
          
           <div class="footer-copyright footer ">
@@ -170,8 +155,11 @@
 
 
 
-
-
+        <script>
+function myFunction() {
+    window.print();
+}
+</script>
 
       <!--Import jQuery before materialize.js-->
       <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>

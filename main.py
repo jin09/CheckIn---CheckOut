@@ -27,6 +27,7 @@ import webapp2
 import os
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
+from google.appengine.api import images
 import webapp2
 import requests_toolbelt.adapters.appengine
 
@@ -123,8 +124,21 @@ class CheckedIn(db.Model):
     visitor_name = db.StringProperty(required=True)
     visitor_email = db.StringProperty(required=True)
     visitor_phone = db.StringProperty(required=True)
+    pic = db.BlobProperty(required=True)
     host_name = db.StringProperty(required=True)
     date = db.DateTimeProperty(auto_now_add=True)
+
+
+class CheckedOut(db.Model):
+    visitor_name = db.StringProperty(required=True)
+    visitor_email = db.StringProperty(required=True)
+    visitor_phone = db.StringProperty(required=True)
+    pic = db.BlobProperty(required=True)
+    host_name = db.StringProperty(required=True)
+    host_email = db.StringProperty(required=True)
+    host_phone = db.StringProperty(required=True)
+    checkin_date = db.DateTimeProperty(required=True)
+    checkout_date = db.DateTimeProperty(auto_now_add=True)
 
 
 class MainHandler(Handler):
@@ -178,7 +192,9 @@ class CheckInHandler(Handler):
 	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Phone Number !!")
 	    return
         host = self.request.get("host")
-
+        pic = self.request.get("pic")
+        pic = images.resize(pic, 256, 256)
+        
         found = False
         host_email = ""
         all_hosts = db.GqlQuery("select * from Hosts")
@@ -192,29 +208,39 @@ class CheckInHandler(Handler):
             checkin = CheckedIn(visitor_name=str(name),
                                 visitor_email=str(email),
                                 visitor_phone=str(phone),
+                                pic=pic,
                                 host_name=str(host)
                                 )
             checkin.put()
+            checkin_id = str(checkin.key().id())
             body_mssg = ("Name: %s\n\nEmail: %s\n\nPhone: %s\n\n" % (name, email, phone))
             send_simple_email("New Incoming Visitor", body_mssg, host_email)
-            self.render("error.html", mssg="Checked In Successfully !")
+            
+            self.render("error.html", mssg="Checked In Successfully !", link=checkin_id)
         else:
-            self.render("error.html", mssg="Error Checking In !!")
+            self.render("error.html", mssg="Error Checking In !!", link="")
 
 
 class CheckOutHandler(Handler):
     def get(self):
         all_checked_in = db.GqlQuery("select * from CheckedIn")
-        self.render("checkout.html", all_checked_in=all_checked_in)
+        ids = []
+        for i in all_checked_in:
+            ids.append(str(i.key().id()))
 
-    def post(self):
-        name = self.request.get("visitor_name")
+        self.render("checkout.html", all_checked_in=all_checked_in, ids=ids)
+
+
+class CheckedOutHandler(Handler):
+    def get(self):
         email = self.request.get("email")
+        name = ""
         all_checked_in = db.GqlQuery("select * from CheckedIn")
         found = False
         x = ""
         for i in all_checked_in:
-            if i.visitor_name == name and i.visitor_email == email:
+            if i.visitor_email == email:
+                name = i.visitor_name
                 found = True
                 host_name = i.host_name
                 all_hosts = db.GqlQuery("select * from Hosts")
@@ -222,19 +248,51 @@ class CheckOutHandler(Handler):
                 for j in all_hosts:
                     if j.name == host_name:
                     	host_mail = j.email
+                        history = CheckedOut(visitor_name = i.visitor_name,
+                                    visitor_email = i.visitor_email,
+                                    visitor_phone = i.visitor_phone,
+                                    pic = i.pic,
+                                    host_name = j.name,
+                                    host_email = j.email,
+                                    host_phone = j.phone,
+                                    checkin_date = i.date)
+                        history.put()
                     	break
                 send_simple_email("Visitor Checked Out !!", "Name:%s\n\nEmail: %s\n\n" % (name, email), host_mail)
                 i.delete()
                 break
         if found:
-            self.render("error.html", mssg="Checked Out Successfully !!")
+            self.render("error.html", mssg="Checked Out Successfully !!", link="")
         if not found:
-            self.render("error.html", mssg="no such person checked in !!")
+            self.render("error.html", mssg="no such person checked in !!", link="")
+
+
+class ImageHandler(Handler):
+    def get(self):
+        check_in_id = self.request.get("id")
+        key = db.Key.from_path('CheckedIn', int(check_in_id))
+        person = db.get(key)
+        if person.pic:
+            self.response.headers['Content-Type'] = 'image/jpeg'
+            self.response.out.write(person.pic)
+        else:
+            self.response.out.write('No image')
+
+
+class PermalinkHandler(Handler):
+    def get(self):
+        person_id = self.request.get("id")
+        key = db.Key.from_path('CheckedIn', int(person_id))
+        person = db.get(key)
+        self.render("permalink.html", i=person, id=person_id)
 
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/addhost', AddHostHandler),
     ('/checkin', CheckInHandler),
-    ('/checkout', CheckOutHandler)
+    ('/checkout', CheckOutHandler),
+    ('/checkedout', CheckedOutHandler),
+    ('/image', ImageHandler),
+    ('/permalink', PermalinkHandler)
 ], debug=True)
