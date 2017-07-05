@@ -30,6 +30,7 @@ from google.appengine.ext import db
 from google.appengine.api import images
 import webapp2
 import requests_toolbelt.adapters.appengine
+from datetime import datetime
 
 requests_toolbelt.adapters.appengine.monkeypatch()
 jinja_env = jinja2.Environment(autoescape=True,
@@ -227,7 +228,6 @@ class CheckOutHandler(Handler):
         ids = []
         for i in all_checked_in:
             ids.append(str(i.key().id()))
-
         self.render("checkout.html", all_checked_in=all_checked_in, ids=ids)
 
 
@@ -267,6 +267,18 @@ class CheckedOutHandler(Handler):
             self.render("error.html", mssg="no such person checked in !!", link="")
 
 
+class ImgHandler(Handler):
+    def get(self):
+        check_in_id = self.request.get("id")
+        key = db.Key.from_path('CheckedOut', int(check_in_id))
+        person = db.get(key)
+        if person.pic:
+            self.response.headers['Content-Type'] = 'image/jpeg'
+            self.response.out.write(person.pic)
+        else:
+            self.response.out.write('No image')
+
+
 class ImageHandler(Handler):
     def get(self):
         check_in_id = self.request.get("id")
@@ -287,6 +299,32 @@ class PermalinkHandler(Handler):
         self.render("permalink.html", i=person, id=person_id)
 
 
+class ReportHandler(Handler):
+    
+    def get(self):
+        self.render("report.html", history="", ids="")
+    
+    def post(self):
+        start_day = int(self.request.get("sday"))
+        start_month = int(self.request.get("smonth"))
+        start_year = int(self.request.get("syear"))
+        end_day = int(self.request.get("eday"))
+        end_month = int(self.request.get("emonth"))
+        end_year = int(self.request.get("eyear"))
+        start_datetime = datetime(start_year, start_month, start_day)
+        end_datetime = datetime(end_year, end_month, end_day)
+        all_history = CheckedOut.all()
+        all_history.filter('checkin_date >=', start_datetime)
+        all_history.filter('checkin_date <=', end_datetime)
+        for i in all_history:
+            print i.checkin_date
+            print i.visitor_name
+        ids = []
+        for i in all_history:
+            ids.append(str(i.key().id()))
+        self.render("report.html", history=all_history, ids=ids)
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/addhost', AddHostHandler),
@@ -294,5 +332,7 @@ app = webapp2.WSGIApplication([
     ('/checkout', CheckOutHandler),
     ('/checkedout', CheckedOutHandler),
     ('/image', ImageHandler),
-    ('/permalink', PermalinkHandler)
+    ('/img', ImgHandler),
+    ('/permalink', PermalinkHandler),
+    ('/generatereport', ReportHandler)
 ], debug=True)
