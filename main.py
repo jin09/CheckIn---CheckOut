@@ -125,16 +125,18 @@ class CheckedIn(db.Model):
     visitor_name = db.StringProperty(required=True)
     visitor_email = db.StringProperty(required=True)
     visitor_phone = db.StringProperty(required=True)
-    pic = db.BlobProperty(required=True)
+    pic = db.BlobProperty()
     host_name = db.StringProperty(required=True)
     date = db.DateTimeProperty(auto_now_add=True)
+    webcam = db.TextProperty()
 
 
 class CheckedOut(db.Model):
     visitor_name = db.StringProperty(required=True)
     visitor_email = db.StringProperty(required=True)
     visitor_phone = db.StringProperty(required=True)
-    pic = db.BlobProperty(required=True)
+    pic = db.BlobProperty()
+    webcam = db.TextProperty()
     host_name = db.StringProperty(required=True)
     host_email = db.StringProperty(required=True)
     host_phone = db.StringProperty(required=True)
@@ -193,9 +195,18 @@ class CheckInHandler(Handler):
 	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Phone Number !!")
 	    return
         host = self.request.get("host")
-        pic = self.request.get("pic")
-        pic = images.resize(pic, 256, 256)
-        
+        pic = ""
+        try:
+            pic = self.request.get("pic")
+            pic = images.resize(pic, 256, 256)
+        except:
+            pic = ""
+        webcam = ""
+        try:
+            webcam = self.request.get("webcam")
+        except:
+            webcam = ""
+        print webcam
         found = False
         host_email = ""
         all_hosts = db.GqlQuery("select * from Hosts")
@@ -210,6 +221,7 @@ class CheckInHandler(Handler):
                                 visitor_email=str(email),
                                 visitor_phone=str(phone),
                                 pic=pic,
+                                webcam=str(webcam),
                                 host_name=str(host)
                                 )
             checkin.put()
@@ -252,6 +264,7 @@ class CheckedOutHandler(Handler):
                                     visitor_email = i.visitor_email,
                                     visitor_phone = i.visitor_phone,
                                     pic = i.pic,
+                                    webcam = i.webcam,
                                     host_name = j.name,
                                     host_email = j.email,
                                     host_phone = j.phone,
@@ -325,6 +338,10 @@ class ReportHandler(Handler):
         self.render("report.html", history=all_history, ids=ids)
 
 
+class TestHandler(Handler):
+    def get(self):
+        self.render("index.html")
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/addhost', AddHostHandler),
@@ -334,5 +351,6 @@ app = webapp2.WSGIApplication([
     ('/image', ImageHandler),
     ('/img', ImgHandler),
     ('/permalink', PermalinkHandler),
-    ('/generatereport', ReportHandler)
+    ('/generatereport', ReportHandler),
+    ('/test', TestHandler)
 ], debug=True)

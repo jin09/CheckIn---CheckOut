@@ -128,6 +128,7 @@
         <tr>
           <th>ID</th>
           <th>Visitor's Photo</th>
+          <th>Webcam Photo</th>
           <th>Visitor's Name</th>
           <th>Visitor's Email</th>
           <th>Visitor's Phone</th>
@@ -142,6 +143,7 @@
         <tr>
           <td data-title="ID">{{j}}</td>
           <td><img src="/img?id={{ids[j-1]}}"></td>
+          <td><img src="{{i.webcam}}"></td>
           <td data-title="Name">{{i.visitor_name}}</td>
           <td data-title="Link">{{i.visitor_email}}</td>
           <td data-title="Status">{{i.visitor_phone}}</td>
