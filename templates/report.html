@@ -29,7 +29,74 @@
       <!--Let browser know website is optimized for mobile-->
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+<script src="https://code.jquery.com/jquery.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/2.10.6/moment-with-locales.min.js"></script>
+<style type="text/css">
+  
+  #fdate-picker {
+     width: 100%;
+}
+.fdate-holder {
+     padding: 0 2px;
+     width: 33.33333%;
+     text-align: center;
+     float: left;
+}
 
+.fdate-control {
+     border: 1px solid #CCC;
+     background-color: #DDD;
+     padding: 4px 0;
+     cursor: pointer;
+     color: #555;
+}
+
+.fdbc-top {
+     -webkit-border-top-left-radius: 5px;
+     -webkit-border-top-right-radius: 5px;
+     -moz-border-radius-topleft: 5px;
+     -moz-border-radius-topright: 5px;
+     border-top-left-radius: 5px;
+     border-top-right-radius: 5px;
+}
+
+.fdbc-bot {
+     -webkit-border-bottom-left-radius: 5px;
+     -webkit-border-bottom-right-radius: 5px;
+     -moz-border-radius-bottomleft: 5px;
+     -moz-border-radius-bottomright: 5px;
+     border-bottom-left-radius: 5px;
+     border-bottom-right-radius: 5px;  
+}
+
+.fdate-display {
+     padding: 4px;
+     font-size: 30px;
+     border-left: 1px solid #CCC;
+     border-right: 1px solid #CCC;
+     color: #555;
+}
+
+#date-group-holder {
+     padding: 0 2px 8px 2px;
+}
+
+.fd-button-holder {
+     margin: 8px 2px 0 2px;
+}
+
+.fdate-label-holder span {
+     font-weight: 600;
+     font-family: Verdana;
+     font-size: 12px;
+     color: #555;
+     display: inline-block;
+     width: 50%;
+     text-align: center;
+}
+</style>
     </head>
 
     <body>
@@ -51,7 +118,7 @@
 
     <!--*********************-->
      
-
+<!--
       <div id="hidef" class="container">
         <div class="z-depth-3 grey lighten-4 row" style="display: inline-block; padding: 10px 10px 0px 10px; border: 0.5px solid #EEE;">
 
@@ -114,6 +181,53 @@
         </div>
       </div>
       
+-->
+
+<div id="fdate-picker" style="
+    width: 50%;
+    margin: 0 auto;">
+     <div class="fdate-label-holder">
+          <span>Start Date</span><span>End Date</span>
+     </div>
+     <div id="date-group-holder">
+          <div class="btn-group btn-group-justified" role="group" data-toggle="buttons">
+            <label id="starttime-holder" class="fd-chooser btn btn-default active">
+              <input type="radio" name="options" id="starttime" autocomplete="off" checked>Jan 19 2016
+            </label>
+            <label id="endtime-holder" class="fd-chooser btn btn-default">
+              <input type="radio" name="options" id="endtime" autocomplete="off" checked>May 20 2016
+            </label>
+          </div>
+     </div>
+     <div class="clearfix">
+          <div id="fdate-month" class="fdate-holder">
+               <div fdt="month" fdv="1"  class="fdate-control fdbc-top"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span></div>
+               <div class="fdate-display">Jan</div>
+               <div fdt="month" fdv="-1" class="fdate-control fdbc-bot"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></div>
+          </div>
+          <div id="fdate-days" class="fdate-holder">
+               <div fdt="days" fdv="1" class="fdate-control fdbc-top"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
+               <div class="fdate-display">19</div>
+               <div fdt="days" fdv="-1" class="fdate-control fdbc-bot"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></div>
+          </div>
+          <div id="fdate-year" class="fdate-holder">
+               <div fdt="year" fdv="1" class="fdate-control fdbc-top"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
+               <div class="fdate-display">2016</div>
+               <div fdt="year" fdv="-1" class="fdate-control fdbc-bot"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></div>
+          </div>
+     </div>
+     <div class="fd-button-holder">
+     <form action="/generatereport" method="post">
+      <input type="hidden" name="sday" id="sday">
+      <input type="hidden" name="smonth" id="smonth">
+      <input type="hidden" name="syear" id="syear">
+      <input type="hidden" name="eday" id="eday">
+      <input type="hidden" name="emonth" id="emonth">
+      <input type="hidden" name="eyear" id="eyear">
+      <input type="submit" class="btn btn-info btn-block">
+     </form>
+     </div>
+</div>
 
 {%if history != ""%}
 
@@ -188,5 +302,103 @@
       <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
       <script type="text/javascript" src="../static/js/materialize.min.js"></script>
       <script type="text/javascript" src="../static/js/login.js"></script>
+      <script type="text/javascript">
+  function FDATE(id){
+  this.jqDom = $(id);
+  this.activeChooserId = 'starttime-holder';
+  var self = this;
+
+  $(this.jqDom).find('.fd-chooser').click(function(){
+       //set the visible chooser date
+       chDate = $(this).text();
+       chMoment = moment(chDate, "MMM D YYYY");
+       
+       $(self.jqDom).find('#fdate-month').find('.fdate-display').text(chMoment.format("MMM"));
+       $(self.jqDom).find('#fdate-days').find('.fdate-display').text(chMoment.format("D"));
+       $(self.jqDom).find('#fdate-year').find('.fdate-display').text(chMoment.format("YYYY"));
+       
+       //ensure the proper clicked chooser is highlighted
+       $(self.jqDom).find('.fd-chooser').removeClass('active');
+       $(this).addClass('active');
+       
+       //store which chooser is active
+       newId = $(this).attr('id');
+       self.activeChooserId = newId;
+  });
+     
+  $(this.jqDom).find('.fdate-control').click(function(){
+       //get the type of change and the value of the change
+       type = $(this).attr('fdt');
+       value = $(this).attr('fdv');
+
+       
+       //grab the current date items
+       month = $(self.jqDom).find('#fdate-month').find('.fdate-display').html();
+       day = $(self.jqDom).find('#fdate-days').find('.fdate-display').html();
+       year = $(self.jqDom).find('#fdate-year').find('.fdate-display').html();
+       //assemble the date
+       curDate = month + " " + day + " " + year;
+       
+       //create a moment and increment it
+       curMoment = moment(curDate, "MMM D YYYY");
+       curMoment.add(value, type);
+       
+       if(self.isBadTimeOverlap(curMoment)){
+            console.log('OVERLAP TRUE');
+           
+            return;
+       }
+       
+       
+       //get the new date pieces
+       newMonth = curMoment.format("MMM");
+       newDay = curMoment.format("D");
+       newYear = curMoment.format("YYYY");
+       
+       if(self.activeChooserId == "starttime-holder"){ //starttime acive
+               document.getElementById("sday").value = curMoment.format("D");
+               document.getElementById("smonth").value = curMoment.format("M");
+               document.getElementById("syear").value = curMoment.format("YYYY");
+          } else { //endtime active
+               document.getElementById("eday").value = curMoment.format("D");
+               document.getElementById("emonth").value = curMoment.format("M");
+               document.getElementById("eyear").value = curMoment.format("YYYY");
+          }
+
+       //update the dom
+       $(self.jqDom).find('#fdate-month').find('.fdate-display').text(newMonth);
+       $(self.jqDom).find('#fdate-days').find('.fdate-display').text(newDay);
+       $(self.jqDom).find('#fdate-year').find('.fdate-display').text(newYear);
+       
+       $(self.jqDom).find('.fd-chooser.active').text(curMoment.format("MMM D YYYY"));
+       
+      
+  });  
+     
+     this.isBadTimeOverlap = function(newTimeMoment){
+          minRange = 1;
+          
+          if(self.activeChooserId == "starttime-holder"){ //starttime acive
+               otherTime = $(self.jqDom).find('#endtime-holder').text().trim();
+               otherMom = moment(otherTime, "MMM D YYYY");
+               tDiff = otherMom.diff(newTimeMoment, 'days');
+          } else { //endtime active
+               otherTime = $(self.jqDom).find('#starttime-holder').text().trim();
+               otherMom = moment(otherTime, "MMM D YYYY");
+               tDiff = newTimeMoment.diff(otherMom, 'days');
+          }
+          
+          if(tDiff <= minRange){
+               alert('The new start time must be ' + minRange +' days earlier than the end date.');
+               return true;
+          }
+         
+          return false;
+     };
+}
+
+var test = new FDATE('#fdate-picker');
+
+</script>
     </body>
   </html>
