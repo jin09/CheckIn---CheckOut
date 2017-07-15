@@ -104,16 +104,20 @@
               <div align="left">Select Image to Upload</div>
                 
               </div>
-            </div>
+        </div>
 	    
 
 
-	   <div class="file_input_div">
+	<div class="file_input_div">
     <div class="file_input">
       <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
+
         <i class="material-icons">file_upload</i>
+
         <input id="file_input_file" class="none" type="file" name="pic" accept="image/*"/>
+
       </label>
+       OR <button class="btn-large waves-effect" onclick="myFunction()" type="button">WEBCAM</button>
     </div>
     <div id="file_input_text_div" class="mdl-textfield mdl-js-textfield textfield-demo">
       <input class="file_input_text mdl-textfield__input" type="text" disabled readonly id="file_input_text" />
@@ -122,8 +126,7 @@
   </div>
 
 <br>
-OR
-<button class="btn-large waves-effect" onclick="myFunction()" type="button">WEBCAM</button>
+
 <br><br>
 <div class="camera" id="webcamera" style="display: none;">
     <video id="video">Video stream not available.</video>
