@@ -351,12 +351,29 @@ class ReportHandler(Handler):
         self.render("report.html", history="", ids="")
     
     def post(self):
-        start_day = int(self.request.get("sday"))
-        start_month = int(self.request.get("smonth"))
-        start_year = int(self.request.get("syear"))
-        end_day = int(self.request.get("eday"))
-        end_month = int(self.request.get("emonth"))
-        end_year = int(self.request.get("eyear"))
+	start_date = self.request.get("start_date")
+	if start_date == "":
+	    self.redirect('/generatereport')
+	end_date = self.request.get("end_date")
+	if end_date == "":
+	    self.redirect('/generatereport')
+	print start_date
+	print end_date
+	start_date = start_date.split('/')
+	end_date = end_date.split('/')
+	"""	
+	for i in start_date:
+	    print i
+	for i in end_date:
+	    print i
+	"""
+	#7/15/2017
+        start_day = int(start_date[1])
+        start_month = int(start_date[0])
+        start_year = int(start_date[2])
+        end_day = int(end_date[1])
+        end_month = int(end_date[0])
+        end_year = int(end_date[2])
         start_datetime = datetime(start_year, start_month, start_day)
         end_datetime = datetime(end_year, end_month, end_day)
         all_history = CheckedOut.all()
