@@ -123,13 +123,15 @@
 
 <br>
 OR
-<div class="camera">
+<button class="btn-large waves-effect" onclick="myFunction()" type="button">WEBCAM</button>
+<br><br>
+<div class="camera" id="webcamera" style="display: none;">
     <video id="video">Video stream not available.</video>
     <button id="startbutton">Take photo</button> 
   </div>
   <canvas id="canvas">
   </canvas>
-  <div class="output">
+  <div class="output" id="webcamera_output" style="display: none;">
     <img id="photo" alt="The screen capture will appear in this box."> 
   </div>
             <br />
@@ -192,7 +194,22 @@ OR
 
 
 
-
+<script type="text/javascript">
+	function myFunction() {
+    var x = document.getElementById('webcamera');
+    var y = document.getElementById('webcamera_output');
+    if (x.style.display === 'none') {
+        x.style.display = 'block';
+    } else {
+        x.style.display = 'none';
+    }
+    if (y.style.display === 'none') {
+        y.style.display = 'block';
+    } else {
+        y.style.display = 'none';
+    }
+}
+</script>
 
 
 
