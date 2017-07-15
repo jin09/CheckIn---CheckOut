@@ -121,6 +121,19 @@
       
 
       -->
+<form action="/checkout" method="post" >      
+<div class='row'>
+        <div class='input-field col s12'>
+              <div align="left">Search by ID</div>
+                <input type="text" id='visitor_id' name="visitor_id" />
+        </div>
+</div>
+<input type="submit" id="one" class="btn col s12 btn-large waves-effect green" value="SEARCH" />
+</form>
+
+<br><br>
+
+{% if all_checked_in != "" %}
       <div id="demo">
   
   <!-- Responsive table starts here -->
@@ -165,9 +178,10 @@
     </table>
   </div>
   
-  
- 
 </div>
+
+{% endif %}
+
 
   </center>
   </main>

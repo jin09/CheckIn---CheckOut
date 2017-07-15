@@ -69,18 +69,18 @@
 
           <form class="col s12" style="width: 320px;" method="post" action="/checkin" enctype="multipart/form-data">
             
-            <div class="camera">
-    <video id="video">Video stream not available.</video>
-    <button id="startbutton">Take photo</button> 
-  </div>
-  <canvas id="canvas">
-  </canvas>
-  <div class="output">
-    <img id="photo" alt="The screen capture will appear in this box."> 
-  </div>
+            
 
 <input type="hidden" id='webcam' name="webcam" />
 
+			
+			<div class='row'>
+              <div class='input-field col s12'>
+              <div align="left">Enter your ID</div>
+                <input type="text" id='visitor_id' name="visitor_id" />
+                
+              </div>
+            </div>
 
             <div class='row'>
               <div class='input-field col s12'>
@@ -122,6 +122,17 @@
   </div>
 
 <br>
+OR
+<div class="camera">
+    <video id="video">Video stream not available.</video>
+    <button id="startbutton">Take photo</button> 
+  </div>
+  <canvas id="canvas">
+  </canvas>
+  <div class="output">
+    <img id="photo" alt="The screen capture will appear in this box."> 
+  </div>
+            <br />
           <div class="mdl-select mdl-js-select mdl-select--floating-label row">
         <select class="mdl-select__input" id="host" name="host">
           <option value=""></option>
@@ -141,8 +152,8 @@
               
             </div>
             </div>
-
-            <br />
+            
+            <br>
             <center>
           
 

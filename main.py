@@ -125,6 +125,7 @@ class CheckedIn(db.Model):
     visitor_name = db.StringProperty(required=True)
     visitor_email = db.StringProperty(required=True)
     visitor_phone = db.StringProperty(required=True)
+    visitor_id = db.StringProperty(required=True)
     pic = db.BlobProperty()
     host_name = db.StringProperty(required=True)
     date = db.DateTimeProperty(auto_now_add=True)
@@ -135,6 +136,7 @@ class CheckedOut(db.Model):
     visitor_name = db.StringProperty(required=True)
     visitor_email = db.StringProperty(required=True)
     visitor_phone = db.StringProperty(required=True)
+    visitor_id = db.StringProperty(required=True)
     pic = db.BlobProperty()
     webcam = db.TextProperty()
     host_name = db.StringProperty(required=True)
@@ -194,19 +196,43 @@ class CheckInHandler(Handler):
 	if not valid_phone(phone):
 	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Phone Number !!")
 	    return
+        visitor_id = self.request.get("visitor_id")
+	print visitor_id
+	if visitor_id == "":
+	    self.render("checkin.html", hosts=all_hosts, mssg="Invalid Visitor's ID !!")
+	    return
+	all_checked_in = db.GqlQuery("select * from CheckedIn")
+	id_found = False
+	for i in all_checked_in:
+	    if i.visitor_id == visitor_id:
+	        id_found = True
+		break
+	if id_found:
+	    self.render("checkin.html", hosts=all_hosts, mssg="Visitor Already Checked In !!")
+	    return
         host = self.request.get("host")
         pic = ""
+	pic_error = False
         try:
             pic = self.request.get("pic")
             pic = images.resize(pic, 256, 256)
         except:
+            print "pic error"
+	    pic_error = True
             pic = ""
         webcam = ""
         try:
             webcam = self.request.get("webcam")
         except:
+	    print "webcam error"
             webcam = ""
-        print webcam
+	webcam_error = False
+	if webcam == "":
+	    webcam_error = True
+        #print webcam
+	if webcam_error and pic_error:
+	    self.render("checkin.html", hosts=all_hosts, mssg="Upload a photo or take picture from webcam !!")
+	    return
         found = False
         host_email = ""
         all_hosts = db.GqlQuery("select * from Hosts")
@@ -220,6 +246,7 @@ class CheckInHandler(Handler):
             checkin = CheckedIn(visitor_name=str(name),
                                 visitor_email=str(email),
                                 visitor_phone=str(phone),
+				visitor_id=str(visitor_id),
                                 pic=pic,
                                 webcam=str(webcam),
                                 host_name=str(host)
@@ -236,7 +263,12 @@ class CheckInHandler(Handler):
 
 class CheckOutHandler(Handler):
     def get(self):
-        all_checked_in = db.GqlQuery("select * from CheckedIn")
+        self.render("checkout.html", all_checked_in="", ids="")
+    
+    def post(self):
+	visitor_id = self.request.get("visitor_id")
+        all_checked_in = CheckedIn.all()
+	all_checked_in.filter("visitor_id =", visitor_id)
         ids = []
         for i in all_checked_in:
             ids.append(str(i.key().id()))
@@ -263,6 +295,7 @@ class CheckedOutHandler(Handler):
                         history = CheckedOut(visitor_name = i.visitor_name,
                                     visitor_email = i.visitor_email,
                                     visitor_phone = i.visitor_phone,
+	                            visitor_id = i.visitor_id,
                                     pic = i.pic,
                                     webcam = i.webcam,
                                     host_name = j.name,
