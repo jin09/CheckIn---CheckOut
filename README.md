@@ -13,7 +13,6 @@ What things you need to install the software and how to install them
 ```
 Linux Environment (Tested on Ubuntu)
 Python
-
 ```
 
 ### Installing
