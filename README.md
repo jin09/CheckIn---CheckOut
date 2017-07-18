@@ -1,6 +1,6 @@
 # Checkin---Checkout
 
-Automating visitor management system to keep the workspace safe and secure for everyone. Aim is to provide best hospitality services to office visitors and managing entry and exit of visitors
+Automating visitor management system to keep the workspace safe and secure for everyone. Aim is to provide best hospitality services to office visitors and managing their entry and exit
 
 ## Getting Started
 
