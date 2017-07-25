@@ -69,16 +69,13 @@
 
           <form class="col s12" style="width: 320px;" method="post" action="/checkin" enctype="multipart/form-data">
             
-            
 
 <input type="hidden" id='webcam' name="webcam" />
 
-			
-			<div class='row'>
+              <div class='row'>
               <div class='input-field col s12'>
-              <div align="left">Enter your ID</div>
-                <input type="text" id='visitor_id' name="visitor_id" />
-                
+              <div align="left">Enter your Name</div>
+                <input type="text" id='uname' name="name" />
               </div>
             </div>
 
@@ -92,16 +89,27 @@
 
             <div class='row'>
               <div class='input-field col s12'>
-              <div align="left">Enter your Name</div>
-                <input type="text" id='uname' name="name" />
-                
-              </div>
+              <div align="left">Enter your Phone Number</div>
+                <input type="text" id='phone' name="phone" />
             </div>
+            </div>
+
+
+              <div class="mdl-select mdl-js-select mdl-select--floating-label row">
+        <select class="mdl-select__input" id="host" name="host">
+          <option value=""></option>
+          {%for i in hosts%}
+              <option value="{{ i['email'] }}">{{i['name']}}: {{i['email']}}</option>
+          {%endfor%}
+
+        </select>
+        <label class="mdl-select__label" for="host">Select the Host</label>
+      </div>
 
 	    
 	   <div class='row'>
               <div class='input-field col s12'>
-              <div align="left">Select Image to Upload</div>
+              <div align="left">Click User Iamge</div>
                 
               </div>
         </div>
@@ -110,18 +118,10 @@
 
 	<div class="file_input_div">
     <div class="file_input">
-      <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
-
-        <i class="material-icons">file_upload</i>
-
-        <input id="file_input_file" class="none" type="file" name="pic" accept="image/*"/>
-
-      </label>
-       OR <button class="btn-large waves-effect" onclick="myFunction()" type="button">WEBCAM</button>
+       <button class="btn-large waves-effect" onclick="myFunction()" type="button">WEBCAM</button>
     </div>
     <div id="file_input_text_div" class="mdl-textfield mdl-js-textfield textfield-demo">
-      <input class="file_input_text mdl-textfield__input" type="text" disabled readonly id="file_input_text" />
-      <label class="mdl-textfield__label" for="file_input_text"></label>
+
     </div>
   </div>
 
@@ -138,34 +138,15 @@
     <img id="photo" alt="The screen capture will appear in this box."> 
   </div>
             <br />
-          <div class="mdl-select mdl-js-select mdl-select--floating-label row">
-        <select class="mdl-select__input" id="host" name="host">
-          <option value=""></option>
-          {%for i in hosts%}
-              <option value="{{i.name}}">{{i.name}}: {{i.email}}</option>
-          {%endfor%}
-          
-        </select>
-        <label class="mdl-select__label" for="host">Select the Host</label>
-      </div>
 
-            <div class='row'>
-              <div class='input-field col s12'>
-              <div align="left">Enter your Phone Number</div>
-                <input type="text" id='phone' name="phone" />
 
-              
-            </div>
-            </div>
+
             
             <br>
             <center>
-          
-
               <div class='row'>
                 <input type="submit" id="one" class="btn col s12 btn-large waves-effect green" value="CHECK IN" />
               </div>
-              
             </center>
           </form>
         </div>
@@ -174,17 +155,6 @@
   </center>
   </main>
 
-<!--
- <footer class="page-footer footer blue-grey darken-3">
-         
-          <div class="footer-copyright footer ">
-            <div class="container center ">
-          Made with ♥ by Neha
-            
-            </div>
-          </div>
-        </footer>
--->
 <footer class="page-footer footer blue-grey darken-3">
  <div class="footer-copyright">
             <div class="container">

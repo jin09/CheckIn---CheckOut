@@ -31,6 +31,7 @@ from google.appengine.api import images
 import webapp2
 import requests_toolbelt.adapters.appengine
 from datetime import datetime
+from random import randint
 
 requests_toolbelt.adapters.appengine.monkeypatch()
 jinja_env = jinja2.Environment(autoescape=True,
@@ -38,6 +39,7 @@ jinja_env = jinja2.Environment(autoescape=True,
 
 headers = {"Content-Type": "application/json",
            "Authorization": "Bearer vuiu77u8ivm1gugwxyf06yhi8heofu7p"}
+
 
 def insert_in_hosts(name, email, phone):
     body = {
@@ -79,7 +81,7 @@ def insert_in_checkin(name, email, phone, visitor_id, webcam_pic, host_name, hos
 
 
 def insert_in_checkout(name, email, phone, visitor_id, webcam_pic, host_name, host_email, pic_id, host_phone,
-                       checkin_date, checkout_date):
+                       checkin_date):
     body = {
         "type": "insert",
         "args": {
@@ -94,8 +96,7 @@ def insert_in_checkout(name, email, phone, visitor_id, webcam_pic, host_name, ho
                 "host_email": host_email,
                 "pic_id": pic_id,
                 "host_phone": host_phone,
-                "checkin_date": checkin_date,
-                "checkout_date": checkout_date
+                "checkin_date": checkin_date
             }]
         }
     }
@@ -162,6 +163,59 @@ def delete_checkin(visitor_id):
         "args": {
             "table": "checkin",
             "where": {"visitor_id": {"$eq": visitor_id}}
+        }
+    }
+    url = "http://data.c100.hasura.me/v1/query"
+    x = requests.post(url, data=json.dumps(body), headers=headers)
+    return x.text
+
+
+def get_checkin_from_id(visitor_id):
+    body = {
+        "type": "select",
+        "args": {
+            "table": "checkin",
+            "columns": ["*"],
+            "where": {"visitor_id": {"$eq": visitor_id}}
+        }
+    }
+    url = "http://data.c100.hasura.me/v1/query"
+    x = requests.post(url, data=json.dumps(body), headers=headers)
+    return x.text
+
+
+def get_host_from_email(email):
+    body = {
+        "type": "select",
+        "args": {
+            "table": "hosts",
+            "columns": ["*"],
+            "where": {"email": {"$eq": email}}
+        }
+    }
+    url = "http://data.c100.hasura.me/v1/query"
+    x = requests.post(url, data=json.dumps(body), headers=headers)
+    return x.text
+
+
+def get_history_from_timestamp(checkin_date, checkout_date):
+    body = {
+        "type": "select",
+        "args": {
+            "table": "checkedout",
+            "columns": ["*"],
+            "where": {
+                "$and": [{
+                    "checkin_date": {
+                        "$gt": checkin_date
+                    }
+                },
+                {
+                    "checkin_date": {
+                        "$lt": checkout_date
+                    }
+                }]
+            }
         }
     }
     url = "http://data.c100.hasura.me/v1/query"
@@ -302,11 +356,13 @@ class AddHostHandler(Handler):
 
 class CheckInHandler(Handler):
     def get(self):
-        all_hosts = db.GqlQuery("select * from Hosts")
+        all_hosts = get_hosts()
+        all_hosts = json.loads(all_hosts)
         self.render('checkin.html', hosts=all_hosts, mssg="")
 
     def post(self):
-        all_hosts = db.GqlQuery("select * from Hosts")
+        all_hosts = get_hosts()
+        all_hosts = json.loads(all_hosts)
         name = self.request.get("name")
         if not valid_name(name):
             self.render("checkin.html", hosts=all_hosts, mssg="Invalid Name !!")
@@ -319,21 +375,26 @@ class CheckInHandler(Handler):
         if not valid_phone(phone):
             self.render("checkin.html", hosts=all_hosts, mssg="Invalid Phone Number !!")
             return
-        visitor_id = self.request.get("visitor_id")
+        visitor_id = str(randint(99999, 99999999))
         print visitor_id
-        if visitor_id == "":
-            self.render("checkin.html", hosts=all_hosts, mssg="Invalid Visitor's ID !!")
-            return
-        all_checked_in = db.GqlQuery("select * from CheckedIn")
+        """
+        all_checked_in = get_checkin()
+        all_checked_in = json.loads(all_checked_in)
         id_found = False
         for i in all_checked_in:
-            if i.visitor_id == visitor_id:
+            if visitor_id == i.visitor_id:
                 id_found = True
                 break
-        if id_found:
-            self.render("checkin.html", hosts=all_hosts, mssg="Visitor Already Checked In !!")
-            return
-        host = self.request.get("host")
+        while id_found:
+            visitor_id = str(randint(99999, 99999999))
+            id_found = False
+            for i in all_checked_in:
+                if visitor_id == i.visitor_id:
+                    id_found = True
+                    break
+        print visitor_id
+        """
+        host_email = self.request.get("host")
         pic = ""
         pic_error = False
         try:
@@ -357,15 +418,17 @@ class CheckInHandler(Handler):
             self.render("checkin.html", hosts=all_hosts, mssg="Upload a photo or take picture from webcam !!")
             return
         found = False
-        host_email = ""
-        all_hosts = db.GqlQuery("select * from Hosts")
+        host = ""
+        all_hosts = get_hosts()
+        all_hosts = json.loads(all_hosts)
         for i in all_hosts:
-            if i.name == host:
+            if i["email"] == host_email:
                 found = True
-                host_email = i.email
+                host = i["name"]
                 break
 
         if found:
+            """
             checkin = CheckedIn(visitor_name=str(name),
                                 visitor_email=str(email),
                                 visitor_phone=str(phone),
@@ -375,65 +438,55 @@ class CheckInHandler(Handler):
                                 host_name=str(host)
                                 )
             checkin.put()
-            checkin_id = str(checkin.key().id())
+            """
+            if webcam_error:
+                # TODO Fix pic ID portion
+                insert_in_checkin(name, email, phone, visitor_id, "", host, host_email, "NULL")
+            elif pic_error:
+                insert_in_checkin(name, email, phone, visitor_id, webcam, host, host_email, "NULL")
+            else:
+                insert_in_checkin(name, email, phone, visitor_id, webcam, host, host_email, "NULL")
+            # checkin_id = str(checkin.key().id())
             body_mssg = ("Name: %s\n\nEmail: %s\n\nPhone: %s\n\n" % (name, email, phone))
             send_simple_email("New Incoming Visitor", body_mssg, host_email)
-
-            self.render("error.html", mssg="Checked In Successfully !", link=checkin_id)
+            self.render("error.html", mssg="Checked In Successfully !", link=visitor_id)
         else:
             self.render("error.html", mssg="Error Checking In !!", link="")
 
 
 class CheckOutHandler(Handler):
     def get(self):
-        self.render("checkout.html", all_checked_in="", ids="")
+        all_checkin = get_checkin()
+        all_checkin = json.loads(all_checkin)
+        self.render("checkout.html", all_checked_in=all_checkin, ids="")
 
     def post(self):
         visitor_id = self.request.get("visitor_id")
-        all_checked_in = CheckedIn.all()
-        all_checked_in.filter("visitor_id =", visitor_id)
+        person_checked_in = get_checkin_from_id(visitor_id)
+        person_checked_in = json.loads(person_checked_in)
         ids = []
-        for i in all_checked_in:
-            ids.append(str(i.key().id()))
-        self.render("checkout.html", all_checked_in=all_checked_in, ids=ids)
+        # TODO fix image ids to render
+        self.render("checkout.html", all_checked_in=person_checked_in, ids=ids)
 
 
 class CheckedOutHandler(Handler):
     def get(self):
-        email = self.request.get("email")
-        name = ""
-        all_checked_in = db.GqlQuery("select * from CheckedIn")
-        found = False
-        x = ""
-        for i in all_checked_in:
-            if i.visitor_email == email:
-                name = i.visitor_name
-                found = True
-                host_name = i.host_name
-                all_hosts = db.GqlQuery("select * from Hosts")
-                host_mail = ""
-                for j in all_hosts:
-                    if j.name == host_name:
-                        host_mail = j.email
-                        history = CheckedOut(visitor_name=i.visitor_name,
-                                             visitor_email=i.visitor_email,
-                                             visitor_phone=i.visitor_phone,
-                                             visitor_id=i.visitor_id,
-                                             pic=i.pic,
-                                             webcam=i.webcam,
-                                             host_name=j.name,
-                                             host_email=j.email,
-                                             host_phone=j.phone,
-                                             checkin_date=i.date)
-                        history.put()
-                        break
-                send_simple_email("Visitor Checked Out !!", "Name:%s\n\nEmail: %s\n\n" % (name, email), host_mail)
-                i.delete()
-                break
-        if found:
-            self.render("error.html", mssg="Checked Out Successfully !!", link="")
-        if not found:
-            self.render("error.html", mssg="no such person checked in !!", link="")
+        visitor_id = self.request.get("visitor_id")
+        # print visitor_id
+        person = get_checkin_from_id(visitor_id)
+        # print person
+        person = json.loads(person)
+        delete_checkin(visitor_id)
+        host = get_host_from_email(person[0]["host_email"])
+        host = json.loads(host)
+        insert_in_checkout(person[0]["visitor_name"], person[0]["visitor_email"], person[0]["visitor_phone"],
+                           person[0]["visitor_id"], person[0]["webcam_pic"], person[0]["host_name"],
+                           person[0]["host_email"], person[0]["pic_id"], host[0]["phone"], person[0]["created"])
+        name = person[0]["visitor_name"]
+        email = person[0]["visitor_email"]
+        host_mail = person[0]["host_email"]
+        send_simple_email("Visitor Checked Out !!", "Name:%s\n\nEmail: %s\n\n" % (name, email), host_mail)
+        self.render("error.html", mssg="Checked Out Successfully !!", link="")
 
 
 class ImgHandler(Handler):
@@ -463,8 +516,9 @@ class ImageHandler(Handler):
 class PermalinkHandler(Handler):
     def get(self):
         person_id = self.request.get("id")
-        key = db.Key.from_path('CheckedIn', int(person_id))
-        person = db.get(key)
+        print person_id
+        person = get_checkin_from_id(person_id)
+        person = json.loads(person)
         self.render("permalink.html", i=person, id=person_id)
 
 
@@ -473,40 +527,17 @@ class ReportHandler(Handler):
         self.render("report.html", history="", ids="")
 
     def post(self):
-        start_date = self.request.get("start_date")
-        if start_date == "":
-            self.redirect('/generatereport')
-        end_date = self.request.get("end_date")
-        if end_date == "":
-            self.redirect('/generatereport')
-        print start_date
-        print end_date
-        start_date = start_date.split('/')
-        end_date = end_date.split('/')
-        """
-        for i in start_date:
-            print i
-        for i in end_date:
-            print i
-        """
-        # 7/15/2017
-        start_day = int(start_date[1])
-        start_month = int(start_date[0])
-        start_year = int(start_date[2])
-        end_day = int(end_date[1])
-        end_month = int(end_date[0])
-        end_year = int(end_date[2])
+        start_day = int(self.request.get("sday"))
+        start_month = int(self.request.get("smonth"))
+        start_year = int(self.request.get("syear"))
+        end_day = int(self.request.get("eday"))
+        end_month = int(self.request.get("emonth"))
+        end_year = int(self.request.get("eyear"))
         start_datetime = datetime(start_year, start_month, start_day)
         end_datetime = datetime(end_year, end_month, end_day)
-        all_history = CheckedOut.all()
-        all_history.filter('checkin_date >=', start_datetime)
-        all_history.filter('checkin_date <=', end_datetime)
-        for i in all_history:
-            print i.checkin_date
-            print i.visitor_name
         ids = []
-        for i in all_history:
-            ids.append(str(i.key().id()))
+        all_history = get_history_from_timestamp(str(start_datetime), str(end_datetime))
+        all_history = json.loads(all_history)
         self.render("report.html", history=all_history, ids=ids)
 
 

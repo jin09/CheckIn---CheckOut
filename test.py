@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import datetime
 
 headers = {"Content-Type": "application/json",
            "Authorization": "Bearer vuiu77u8ivm1gugwxyf06yhi8heofu7p"}
@@ -134,6 +135,47 @@ def delete_checkin(visitor_id):
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
-x = delete_checkin("123456")
 
+def get_checkin_from_id(visitor_id):
+    body = {
+        "type": "select",
+        "args": {
+            "table": "checkin",
+            "columns": ["*"],
+            "where": {"visitor_id": {"$eq": visitor_id}}
+        }
+    }
+    url = "http://data.c100.hasura.me/v1/query"
+    x = requests.post(url, data=json.dumps(body), headers=headers)
+    return x.text
+
+def get_history_from_timestamp(checkin_date, checkout_date):
+    body = {
+        "type": "select",
+        "args": {
+            "table": "checkedout",
+            "columns": ["*"],
+            "where": {
+                "$and": [{
+                    "checkin_date": {
+                        "$gt": checkin_date
+                    }
+                },
+                {
+                    "checkin_date": {
+                        "$lt": checkout_date
+                    }
+                }]
+            }
+        }
+    }
+    url = "http://data.c100.hasura.me/v1/query"
+    x = requests.post(url, data=json.dumps(body), headers=headers)
+    return x.text
+
+def upload_image(pic):
+    pass
+
+
+x = get_history_from_timestamp(str(datetime(2017, 6, 30)), str(datetime(2017, 7, 25)))
 print x
