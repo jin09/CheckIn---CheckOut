@@ -38,7 +38,7 @@ jinja_env = jinja2.Environment(autoescape=True,
                                loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
 
 headers = {"Content-Type": "application/json",
-           "Authorization": "Bearer vuiu77u8ivm1gugwxyf06yhi8heofu7p"}
+           "Authorization": "Bearer n4nw3uhydroar6tluzbcreg2x6unzn56"}
 
 
 def insert_in_hosts(name, email, phone):
