@@ -28,7 +28,6 @@ import os
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.api import images
-import webapp2
 import requests_toolbelt.adapters.appengine
 from datetime import datetime
 from random import randint

@@ -1,0 +1,9 @@
+pillow
+json
+requests
+sparkpost
+jinja2
+re
+datetime
+random
+
