@@ -1,5 +1,4 @@
 pillow
-json
 requests
 sparkpost
 jinja2
