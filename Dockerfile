@@ -10,6 +10,8 @@ COPY / /home/src/
 
 RUN rm -f /home/src/Dockerfile
 
+Run apk add gcc
+
 RUN pip install -r /home/src/requirements.txt
 
 CMD ["python", "/home/google_appengine/dev_appserver.py", "/home/src/app.yaml", "--skip_sdk_update_check=yes", "--host", "0.0.0.0", "--port", "8080"]
