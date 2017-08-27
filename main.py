@@ -375,14 +375,17 @@ class CheckInHandler(Handler):
         all_hosts = get_hosts()
         all_hosts = json.loads(all_hosts)
         name = self.request.get("name")
+	print name
         if not valid_name(name):
             self.render("checkin.html", hosts=all_hosts, mssg="Invalid Name !!")
             return
         email = self.request.get("email")
+	print email
         if not valid_email(email):
             self.render("checkin.html", hosts=all_hosts, mssg="Invalid Email !!")
             return
         phone = self.request.get("phone")
+	print phone
         if not valid_phone(phone):
             self.render("checkin.html", hosts=all_hosts, mssg="Invalid Phone Number !!")
             return
@@ -406,6 +409,7 @@ class CheckInHandler(Handler):
         print visitor_id
         """
         host_email = self.request.get("host")
+	print host_email
         pic = ""
         pic_error = False
         try:
