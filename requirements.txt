@@ -4,4 +4,4 @@ sparkpost
 jinja2
 regex
 datetime
-random>=2.4
+
