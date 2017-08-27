@@ -2,7 +2,7 @@ pillow
 requests
 sparkpost
 jinja2
-re
+regex
 datetime
 random
 
