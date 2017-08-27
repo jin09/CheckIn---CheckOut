@@ -53,7 +53,7 @@ def insert_in_hosts(name, email, phone):
             }]
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -75,7 +75,7 @@ def insert_in_checkin(name, email, phone, visitor_id, webcam_pic, host_name, hos
             }]
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -100,7 +100,7 @@ def insert_in_checkout(name, email, phone, visitor_id, webcam_pic, host_name, ho
             }]
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -113,7 +113,7 @@ def get_hosts():
             "columns": ["*"]
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -126,7 +126,7 @@ def get_checkin():
             "columns": ["*"]
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -139,7 +139,7 @@ def get_checkedout():
             "columns": ["*"]
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -152,7 +152,7 @@ def delete_host(email):
             "where": {"email": {"$eq": email}}
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -165,7 +165,7 @@ def delete_checkin(visitor_id):
             "where": {"visitor_id": {"$eq": visitor_id}}
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -179,7 +179,7 @@ def get_checkin_from_id(visitor_id):
             "where": {"visitor_id": {"$eq": visitor_id}}
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -193,7 +193,7 @@ def get_host_from_email(email):
             "where": {"email": {"$eq": email}}
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
@@ -218,7 +218,7 @@ def get_history_from_timestamp(checkin_date, checkout_date):
             }
         }
     }
-    url = "http://data.c100.hasura.me/v1/query"
+    url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
     return x.text
 
