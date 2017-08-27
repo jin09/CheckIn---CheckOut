@@ -55,6 +55,7 @@ def insert_in_hosts(name, email, phone):
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -77,6 +78,7 @@ def insert_in_checkin(name, email, phone, visitor_id, webcam_pic, host_name, hos
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -102,6 +104,7 @@ def insert_in_checkout(name, email, phone, visitor_id, webcam_pic, host_name, ho
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -115,6 +118,7 @@ def get_hosts():
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -128,6 +132,7 @@ def get_checkin():
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -141,6 +146,7 @@ def get_checkedout():
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -154,6 +160,7 @@ def delete_host(email):
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -167,6 +174,7 @@ def delete_checkin(visitor_id):
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -181,6 +189,7 @@ def get_checkin_from_id(visitor_id):
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -195,6 +204,7 @@ def get_host_from_email(email):
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
@@ -220,6 +230,7 @@ def get_history_from_timestamp(checkin_date, checkout_date):
     }
     url = "https://data.hath50.hasura-app.io/v1/query"
     x = requests.post(url, data=json.dumps(body), headers=headers)
+    print x.text
     return x.text
 
 
